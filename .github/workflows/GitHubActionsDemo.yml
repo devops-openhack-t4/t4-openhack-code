@@ -18,7 +18,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        dotnet-version: ['3.0', '3.1.x', '5.0.x' ]
+        dotnet-version: ['3.1.x']
 
     steps:
       - name: code checkout
@@ -29,14 +29,17 @@ jobs:
         with:
           dotnet-version: ${{ matrix.dotnet-version }}
       
-      - name: change workdir
-        run: cd ./apis/poi
-
       - name: Install dependencies
-        run: dotnet restore
+        run: dotnet restore apis/poi/web/poi.csproj
       
       - name: Build
-        run: dotnet build --configuration Release --no-restore
+        run: dotnet build apis/poi/web/poi.csproj --configuration Release --no-restore
+      
+      - name: Install dependencies for unit tests
+        run: dotnet restore apis/poi/tests/UnitTests/UnitTests.csproj
+      
+      - name: Build unit tests
+        run: dotnet build apis/poi/tests/UnitTests/UnitTests.csproj --configuration Release --no-restore
       
       - name: Test
-        run: dotnet test --no-restore --verbosity normal
+        run: dotnet test apis/poi/tests/UnitTests --no-restore --verbosity normal
