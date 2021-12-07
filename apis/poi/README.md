@@ -21,7 +21,7 @@ To use the command line just type:
 dotnet test .
 ```
 
-This will run both the Unit Tests and the Integration Tests
+This will run both the Unit Tests and the Integration Tests.
 
 > Please note that the __Integration Tests__ require the Database to be available
 
