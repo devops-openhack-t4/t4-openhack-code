@@ -1,0 +1,41 @@
+name: GitHubActionsNodejs
+
+on:
+# Triggers the workflow on push or pull request events but only for the main branch
+  push:
+    branches: [ main ]
+    paths:
+      - apis/userprofile/**
+  pull_request:
+    branches: [ main ]
+    paths:
+      - apis/userprofile/**
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    steps:
+      - name: code checkout
+        uses: actions/checkout@v2
+
+      - name: Use Node.js
+        uses: actions/setup-node@v1
+        with:
+          node-version: '12.x'
+      
+      - name: current working dir and list of dirs
+        run: pwd && ls
+
+      - name: change workdir
+        run: cd ./apis/poi
+
+
+      - name: Install dependencies
+        run: npm install
+      
+      - name: Build
+        run: npm start
+      
+      - name: Test
+        run: npm run test
