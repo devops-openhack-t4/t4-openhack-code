@@ -1,5 +1,14 @@
 name: Build And Push - POI
 
+env:
+  helath_url: "https://openhackq3i8na21poi-staging.azurewebsites.net/api/healthcheck/poi"  
+  resource_group: "openhackq3i8na21rg"
+  app_name: "openhackq3i8na21poi"
+  source_slot: "staging"
+  target_slot: "production"
+  login_server: "openhackq3i8na21acr.azurecr.io"
+  repository: "devopsoh/api-poi"
+  
 on:
   push:
     branches: [ main ]
@@ -7,43 +16,41 @@ on:
 
 jobs:
 
-#   deploy:
-
-#     runs-on: ubuntu-latest
-
-#     steps:    
-#     - uses: actions/checkout@v2
-#     - name: Build the Docker image
-#       run: docker build apis/poi/web/ --tag openhackq3i8na21acr.azurecr.io/devopsoh/api-poi:${{ github.run_number }}
+  deploy:
+    runs-on: ubuntu-latest
+    steps:    
+    - uses: actions/checkout@v2
+    - name: Build the Docker image
+      run: docker build apis/poi/web/ --tag ${{ env.login_server }}/${{ env.repository }}:${{ github.run_number }}
       
-#     - name: Azure Container Registry Login
-#       uses: Azure/docker-login@v1
-#       with:
-#         # Container registry username
-#         username: ${{ secrets.ACR_USERNAME }}
-#         # Container registry password
-#         password: ${{ secrets.ACR_PASSWORD }}
-#         # Container registry server url
-#         login-server: ${{ secrets.ACR_LOGIN_SERVER }}
+    - name: Azure Container Registry Login
+      uses: Azure/docker-login@v1
+      with:
+        # Container registry username
+        username: ${{ secrets.ACR_USERNAME }}
+        # Container registry password
+        password: ${{ secrets.ACR_PASSWORD }}
+        # Container registry server url
+        login-server: ${{ env.login_server }}
     
-#     - name: Push the Docker image
-#       run: docker push openhackq3i8na21acr.azurecr.io/devopsoh/api-poi:${{ github.run_number }}
+    - name: Push the Docker image
+      run: docker push ${{ env.login_server }}/${{ env.repository }}:${{ github.run_number }}
         
-#     - name: Azure Login
-#       uses: azure/login@v1
-#       with:
-#         creds: ${{ secrets.AZURE_CREDENTIALS }}
+    - name: Azure Login
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
         
-#     - name: 'Deploy to Azure Web App for Container'
-#       uses: azure/webapps-deploy@v2
-#       with: 
-#         app-name: openhackq3i8na21poi
-#         slot-name: staging
-#         images: openhackq3i8na21acr.azurecr.io/devopsoh/api-poi:${{ github.run_number }}
+    - name: 'Deploy to Azure Web App for Container'
+      uses: azure/webapps-deploy@v2
+      with: 
+        app-name: ${{ env.app_name }}
+        slot-name: ${{ env.source_slot }}
+        images: ${{ env.login_server }}/${{ env.repository }}:${{ github.run_number }}
 
   
   validate:
-    # needs: deploy
+    needs: deploy
     runs-on: ubuntu-latest
     steps:
     - name: Site Health Check
@@ -52,7 +59,7 @@ jobs:
       uses: pchalupa/site-health-check@v1.0.2
       with:
         # Site URL
-        url: "https://openhackq3i8na21poi-staging.azurewebsites.net/api/healthcheck/poi"  
+        url: ${{ env.helath_url }}  
   
   swap:
     needs: validate
@@ -67,4 +74,4 @@ jobs:
         uses: Azure/cli@v1
         with:
         # Specify the script here
-          inlineScript: az webapp deployment slot swap -g openhackq3i8na21rg -n openhackq3i8na21poi --slot staging --target-slot production
+          inlineScript: az webapp deployment slot swap -g ${{ env.resource_group }}  -n ${{ env.app_name }} --slot ${{ env.source_slot }} --target-slot ${{ env.target_slot }}
