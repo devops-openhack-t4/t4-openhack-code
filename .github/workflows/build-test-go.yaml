@@ -1,0 +1,42 @@
+name: Build And Push
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch: 
+
+jobs:
+
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:    
+    - uses: actions/checkout@v2
+    - name: Build the Docker image
+      run: docker build apis/trips/ --tag openhackq3i8na21acr.azurecr.io/devopsoh/api-trips:${{ github.run_number }}
+      
+    - name: Azure Container Registry Login
+      uses: Azure/docker-login@v1
+      with:
+        # Container registry username
+        username: ${{ secrets.ACR_USERNAME }}
+        # Container registry password
+        password: ${{ secrets.ACR_PASSWORD }}
+        # Container registry server url
+        login-server: ${{ secrets.ACR_LOGIN_SERVER }}
+    
+    - name: Push the Docker image
+      run: docker push openhackq3i8na21acr.azurecr.io/devopsoh/api-trips:${{ github.run_number }}
+        
+    - name: Azure Login
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+        
+    - name: 'Deploy to Azure Web App for Container'
+      uses: azure/webapps-deploy@v2
+      with: 
+        app-name: openhackq3i8na21poi
+        slot-name: staging
+        images: openhackq3i8na21acr.azurecr.io/devopsoh/api-trips:${{ github.run_number }}
