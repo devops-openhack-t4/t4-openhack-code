@@ -14,7 +14,7 @@ jobs:
     steps:    
     - uses: actions/checkout@v2
     - name: Build the Docker image
-      run: docker build apis/user-java/web/ --tag openhackq3i8na21acr.azurecr.io/devopsoh/api-user-java:${{ github.run_number }}
+      run: docker build apis/user-java/ --tag openhackq3i8na21acr.azurecr.io/devopsoh/api-user-java:${{ github.run_number }}
       
     - name: Azure Container Registry Login
       uses: Azure/docker-login@v1
