@@ -81,23 +81,23 @@ jobs:
     needs: swap
     runs-on: ubuntu-latest
     steps:
-    - name: Site Health Check
-      # You may pin to the exact commit or the version.
-      # uses: pchalupa/site-health-check@1465433932fe6e6e51875730858e76a5d4b4df8c
-      uses: pchalupa/site-health-check@v1.0.2
-      with:
-        # Site URL
-        url: ${{ env.production_health_url }}  
+      - name: Site Health Check
+        # You may pin to the exact commit or the version.
+        # uses: pchalupa/site-health-check@1465433932fe6e6e51875730858e76a5d4b4df8c
+        uses: pchalupa/site-health-check@v1.0.2
+        with:
+          # Site URL
+          url: ${{ env.production_health_url }}  
 
-    - name: failure and create issue
-      if:  failure()
-      uses: azure/login@v1
-      with:
-        creds: ${{ secrets.AZURE_CREDENTIALS }}
+      - name: Azure Login
+        if:  failure()
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-    - name: Azure CLI Action
-      if:  failure()
-      uses: Azure/cli@v1
-      with:
-      # Specify the script here
-        inlineScript: az webapp deployment slot swap -g ${{ env.resource_group }}  -n ${{ env.app_name }} --slot ${{ env.target_slot }} --target-slot ${{ env.source_slot }}
+      - name: Azure CLI Action
+        if:  failure()
+        uses: Azure/cli@v1
+        with:
+        # Specify the script here
+          inlineScript: az webapp deployment slot swap -g ${{ env.resource_group }}  -n ${{ env.app_name }} --slot ${{ env.target_slot }} --target-slot ${{ env.source_slot }}
