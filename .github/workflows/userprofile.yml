@@ -2,10 +2,9 @@ name: Deploy UserProfile
 
 env:
   # Using ACR
-    # registry: openhackkz15cji1acr.azurecr.io
     registry: openhackq3i8na21acr.azurecr.io
     repository: devopsoh/api-userprofile
-    docker_path: apis/userprofile/
+    docker_path: apis/userprofile
     build_name: User Profile
     
 on:
