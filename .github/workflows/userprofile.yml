@@ -29,7 +29,7 @@ jobs:
         run: dotnet restore apis/userprofile/web/userprofile.csproj
       
       - name: Build
-        run: dotnet build apis/poi/web/userprofile.csproj --configuration Release --no-restore
+        run: dotnet build apis/userprofile/web/userprofile.csproj --configuration Release --no-restore
       
       - name: Install dependencies for unit tests
         run: dotnet restore apis/userprofile/tests/UnitTests/UnitTests.csproj
@@ -84,5 +84,6 @@ jobs:
       
       - uses: azure/webapps-deploy@v2
         with:
-          app-name: 'node-rnc'
-          images: '${{ secrets.ACR_LOGIN_SERVER }}/devopsoh/api-userprofile:${{ github.sha }}'
+          app-name: 'openhackq3i8na21userprofile'
+          slot-name: staging
+          images: ${{ secrets.ACR_LOGIN_SERVER }}/devopsoh/api-userprofile:${{ github.run_number }}
