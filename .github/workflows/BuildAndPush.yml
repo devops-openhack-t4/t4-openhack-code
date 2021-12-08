@@ -27,5 +27,5 @@ jobs:
         login-server: openhackq3i8na21acr.azurecr.io
     
     - name: Push the Docker image
-      run: docker push openhackq3i8na21acr.azurecr.io/devopsoh/api-poi:${{ github.run_number }}
+      run: docker push devopsoh/api-poi:${{ github.run_number }}
         
