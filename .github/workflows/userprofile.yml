@@ -64,18 +64,25 @@ jobs:
         uses: Azure/docker-login@v1
         with:
           # Container registry username
-          username: ${{ secrets.ACR_username }}
+          username: ${{ secrets.ACR_USERNAME }}
           # Container registry password
-          password: ${{ secrets.ACR_password }}
+          password: ${{ secrets.ACR_PASSWORD }}
           # Container registry server url
-          login-server: ${{ secrets.ACR_login_server }}
+          login-server: ${{ secrets.ACR_LOGIN_SERVER }}
 
       - name: Push the Docker image
-        run: docker push openhackq3i8na21acr.azurecr.io/devopsoh/api-userprofile:${{ github.run_number }}    
+        run: docker push ${{ secrets.ACR_LOGIN_SERVER }}/devopsoh/api-userprofile:${{ github.run_number }}    
 
   deployWebApp:
     needs: deployACR
     runs-on: ubuntu-latest
     steps:
-      - name: Build the Docker image
-        run: docker build . --file Dockerfile --tag devopsoh/api-userprofile:${{ github.run_number }}
+      - name: 'Login via Azure CLI'
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+      
+      - uses: azure/webapps-deploy@v2
+        with:
+          app-name: 'node-rnc'
+          images: '${{ secrets.ACR_LOGIN_SERVER }}/devopsoh/api-userprofile:${{ github.sha }}'
