@@ -3,7 +3,10 @@ name: Deploy UserProfile
 env:
   # Using ACR
     # registry: openhackkz15cji1acr.azurecr.io
-    repository: apis/userprofile/
+    registry: openhackq3i8na21acr.azurecr.io
+    repository: devopsoh/api-user
+    docker_path: apis/userprofile
+    # build_name: User Profile
     
 on:
 # Triggers the workflow on push or pull request events but only for the main branch
@@ -62,7 +65,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Build the Docker image
-        run: docker build ${{ env.repository }} --tag devopsoh/api-userprofile:${{ github.run_number }}
+        # run: docker build ${{ env.directory }} --tag devopsoh/api-userprofile:${{ github.run_number }}
+        run: docker build -t ${{ env.registry }}/${{ env.repository }}:${{github.run_number}} --build-arg build_version=${{github.run_number}} ${{ env.docker_path }}
 
       - name: Azure Container Registry Login
         uses: Azure/docker-login@v1
@@ -72,10 +76,10 @@ jobs:
           # Container registry password
           password: ${{ secrets.ACR_PASSWORD }}
           # Container registry server url
-          login-server: ${{ secrets.ACR_LOGIN_SERVER }}
+          login-server: ${{ env.registry }}
 
       - name: Push the Docker image
-        run: docker push ${{ secrets.ACR_LOGIN_SERVER }}/devopsoh/api-userprofile:${{ github.run_number }}    
+        run: docker push ${{ env.registry }}/devopsoh/api-userprofile:${{ github.run_number }}    
 
   
   deployWebApp:
@@ -91,4 +95,4 @@ jobs:
         with:
           app-name: 'openhackq3i8na21userprofile'
           slot-name: staging
-          images: ${{ secrets.ACR_LOGIN_SERVER }}/devopsoh/api-userprofile:${{ github.run_number }}
+          images: ${{ env.registry }}/devopsoh/api-userprofile:${{ github.run_number }}
