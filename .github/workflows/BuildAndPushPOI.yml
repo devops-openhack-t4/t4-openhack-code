@@ -58,8 +58,13 @@ jobs:
     needs: validate
     runs-on: ubuntu-latest
     steps:
-     - name: Azure CLI Action
-       uses: Azure/cli@v1
-       with:
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Azure CLI Action
+        uses: Azure/cli@v1
+        with:
         # Specify the script here
-           inlineScript: az webapp deployment slot swap -g openhackq3i8na21rg -n openhackq3i8na21poi --slot staging --target-slot production
+          inlineScript: az webapp deployment slot swap -g openhackq3i8na21rg -n openhackq3i8na21poi --slot staging --target-slot production
