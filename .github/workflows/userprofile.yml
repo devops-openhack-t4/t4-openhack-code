@@ -13,7 +13,11 @@ jobs:
 
   build:
     runs-on: ubuntu-latest
-    
+    defaults:
+      run:
+        shell: bash
+        working-directory: apis/userprofile
+        
     strategy:
       matrix:
         node-version: [10.x, 12.x, 14.x]
@@ -26,10 +30,9 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: ${{ matrix.node-version }}
-      - run: cd apis/userprofile/
       - run: npm install 
-      - run: npm run build --if-present
-      - run: npm test
+      - run: npm start #run build --if-present
+      - run: npm run test
       
       #- name: npm install and build webpack
       #  run: |
