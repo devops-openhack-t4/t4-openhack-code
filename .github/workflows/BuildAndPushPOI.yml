@@ -47,10 +47,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Azure PowerShell Action
-       uses: Azure/powershell@v1
-       with:
-         inlineScript: $response = Invoke-RestMethod 'https://openhackq3i8na21poi-staging.azurewebsites.net/api/healthcheck/poi' -Method 'GET'
-                       echo $response # | ConvertTo-Json
+      uses: Azure/powershell@v1
+      with:
+        inlineScript: $response = Invoke-RestMethod 'https://openhackq3i8na21poi-staging.azurewebsites.net/api/healthcheck/poi' -Method 'GET'
+                      echo $response # | ConvertTo-Json
   
   
   swap:
