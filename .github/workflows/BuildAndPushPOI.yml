@@ -38,4 +38,5 @@ jobs:
       uses: azure/webapps-deploy@v2
       with: 
         app-name: openhackq3i8na21poi
+        slot-name: staging
         images: openhackq3i8na21acr.azurecr.io/devopsoh/api-poi:${{ github.run_number }}
