@@ -60,13 +60,9 @@ jobs:
   deployACR:
     needs: build
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        shell: bash
-        working-directory: apis/userprofile
     steps:
       - name: Build the Docker image
-        run: docker build ${{ env.repository }} --file Dockerfile --tag devopsoh/api-userprofile:${{ github.run_number }}
+        run: docker build ${{ env.repository }} --tag devopsoh/api-userprofile:${{ github.run_number }}
 
       - name: Azure Container Registry Login
         uses: Azure/docker-login@v1
@@ -85,10 +81,6 @@ jobs:
   deployWebApp:
     needs: deployACR
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        shell: bash
-        working-directory: apis/userprofile
     steps:
       - name: 'Login via Azure CLI'
         uses: azure/login@v1
