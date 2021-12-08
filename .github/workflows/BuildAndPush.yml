@@ -14,7 +14,7 @@ jobs:
     steps:    
     - uses: actions/checkout@v2
     - name: Build the Docker image
-      run: docker build apis/poi/web/ --tag devopsoh/api-poi:${{ github.run_number }}
+      run: docker build apis/poi/web/ --tag openhackq3i8na21acr.azurecr.io/devopsoh/api-poi:${{ github.run_number }}
       
     - name: Azure Container Registry Login
       uses: Azure/docker-login@v1
@@ -27,5 +27,5 @@ jobs:
         login-server: openhackq3i8na21acr.azurecr.io
     
     - name: Push the Docker image
-      run: docker push devopsoh/api-poi:${{ github.run_number }}
+      run: docker push openhackq3i8na21acr.azurecr.io/devopsoh/api-poi:${{ github.run_number }}
         
