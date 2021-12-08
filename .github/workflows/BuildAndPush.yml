@@ -20,14 +20,19 @@ jobs:
       uses: Azure/docker-login@v1
       with:
         # Container registry username
-        username: openhackq3i8na21acr 
+        username: ${{ secrets.ACR_USERNAME }}
         # Container registry password
-        password: 8wUWzX4LC/shGTjxtf8lFfFAVZw3iCsP
+        password: ${{ secrets.ACR_PASSWORD }}
         # Container registry server url
-        login-server: openhackq3i8na21acr.azurecr.io
+        login-server: ${{ secrets.ACR_LOGIN_SERVER }}
     
     - name: Push the Docker image
       run: docker push openhackq3i8na21acr.azurecr.io/devopsoh/api-poi:${{ github.run_number }}
+        
+    - name: Azure Login
+    - uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
         
     - name: 'Deploy to Azure Web App for Container'
       uses: azure/webapps-deploy@v2
