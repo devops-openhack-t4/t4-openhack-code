@@ -53,7 +53,7 @@ jobs:
               title: "${{ env.build_name }} Workflow ${{ github.run_number }} Failed! ",
               body: body
             })
-  deploy:
+  deployACR:
     needs: build
     runs-on: ubuntu-latest
     steps:
@@ -64,11 +64,18 @@ jobs:
         uses: Azure/docker-login@v1
         with:
           # Container registry username
-          username: openhackq3i8na21acr 
+          username: ${{ secrets.ACR_username }}
           # Container registry password
-          password: 8wUWzX4LC/shGTjxtf8lFfFAVZw3iCsP
+          password: ${{ secrets.ACR_password }}
           # Container registry server url
-          login-server: openhackq3i8na21acr.azurecr.io
+          login-server: ${{ secrets.ACR_login_server }}
 
       - name: Push the Docker image
-        run: docker push openhackq3i8na21acr.azurecr.io/devopsoh/api-userprofile:${{ github.run_number }}       
+        run: docker push openhackq3i8na21acr.azurecr.io/devopsoh/api-userprofile:${{ github.run_number }}    
+
+  deployWebApp:
+    needs: deployACR
+    runs-on: ubuntu-latest
+    steps:
+      - name: Build the Docker image
+        run: docker build . --file Dockerfile --tag devopsoh/api-userprofile:${{ github.run_number }}
