@@ -96,6 +96,7 @@ jobs:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
 
     - name: Azure CLI Action
+      if:  failure()
       uses: Azure/cli@v1
       with:
       # Specify the script here
