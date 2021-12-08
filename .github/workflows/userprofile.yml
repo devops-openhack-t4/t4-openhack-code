@@ -8,25 +8,39 @@ on:
       - apis/userprofile/**
 
   workflow_dispatch: 
+  
+  
 
 jobs:
   build:
     runs-on: ubuntu-latest
-
+    
+    strategy:
+      matrix:
+        node-version: [10.x, 12.x, 14.x]
+    
     steps:
       - name: code checkout
         uses: actions/checkout@v2
-    
-      - name: npm install and build webpack
-        run: |
-          npm install
-          npm start
+      
+      - name: Use Node.js
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+      - run: npm install
+      - run: npm run build /apis/userprofile/ --if-present
+      - run: npm test /apis/userprofile/
+      
+      #- name: npm install and build webpack
+      #  run: |
+      #    npm install
+      #    npm start
       
       #- name: Install dependencies
       #  run: dotnet restore apis/userprofile/web/userprofile.csproj
       
-      - name: Build
-        run: npm run build apis/userprofile/web/userprofile.csproj --configuration Release --no-restore
+      #- name: Build
+      #  run: npm run build apis/userprofile/web/userprofile.csproj --configuration Release --no-restore
       
       #- name: Install dependencies for unit tests
       #  run: npm run restore apis/userprofile/tests/UnitTests/UnitTests.csproj
@@ -34,8 +48,8 @@ jobs:
       #- name: Build unit tests
       #  run: npm run build apis/userprofile/tests/UnitTests/UnitTests.csproj --configuration Release --no-restore
       
-      - name: Test
-        run: npm run test apis/userprofile/tests/UnitTests --no-restore --verbosity normal
+      #- name: Test
+      #  run: npm run test apis/userprofile/tests/UnitTests --no-restore --verbosity normal
         
       - name: Setup .NET Core SDK ${{ matrix.dotnet-version }}
         uses: actions/github-script@0.9.0
