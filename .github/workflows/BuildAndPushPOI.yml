@@ -46,12 +46,13 @@ jobs:
     needs: deploy
     runs-on: ubuntu-latest
     steps:
-    - name: Azure PowerShell Action
-      uses: Azure/powershell@v1
+    - name: Site Health Check
+      # You may pin to the exact commit or the version.
+      # uses: pchalupa/site-health-check@1465433932fe6e6e51875730858e76a5d4b4df8c
+      uses: pchalupa/site-health-check@v1.0.2
       with:
-        inlineScript: $response = Invoke-RestMethod 'https://openhackq3i8na21poi-staging.azurewebsites.net/api/healthcheck/poi' -Method 'GET'
-                      echo $response # | ConvertTo-Json
-  
+        # Site URL
+        url: "https://openhackq3i8na21poi-staging.azurewebsites.net/api/healthcheck/poi"  
   
   swap:
     needs: validate
