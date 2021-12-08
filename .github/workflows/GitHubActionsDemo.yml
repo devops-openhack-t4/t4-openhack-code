@@ -16,6 +16,8 @@ jobs:
   build:
 
     runs-on: ubuntu-latest
+    permissions:
+      issues: write
     strategy:
       matrix:
         dotnet-version: ['3.1.x']
@@ -43,3 +45,30 @@ jobs:
       
       - name: Test
         run: dotnet test apis/poi/tests/UnitTests --no-restore --verbosity normal
+        
+      - name: Create a failure
+        run: exit 1
+        
+      - name: failure and create issue
+        if:  ${{ failure() }}
+        uses: imjohnbo/issue-bot@v3
+        with:
+          assignees: "arvinddr123"
+          labels: "failed PR"
+          title: "Build Failed"
+          body: |
+            ### Agenda
+
+            - [ ] Start the recording
+            - [ ] Check-ins
+            - [ ] Discussion points
+            - [ ] Post the recording
+                    
+            ### Discussion Points
+            Add things to discuss below
+
+            - [Work this week](https://github.com/devops-openhack-t4/t4-openhack-code/projects/1)
+          pinned: false
+          close-previous: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
