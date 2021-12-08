@@ -12,33 +12,30 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        dotnet-version: ['3.1.x']
 
     steps:
       - name: code checkout
         uses: actions/checkout@v2
     
-      - name: Setup .NET Core SDK ${{ matrix.dotnet-version }}
-        uses: actions/setup-dotnet@v1.7.2
-        with:
-          dotnet-version: ${{ matrix.dotnet-version }}
+      - name: npm install and build webpack
+        run: |
+          npm install
+          npm start
       
-      - name: Install dependencies
-        run: dotnet restore apis/userprofile/web/userprofile.csproj
+      #- name: Install dependencies
+      #  run: dotnet restore apis/userprofile/web/userprofile.csproj
       
       - name: Build
-        run: dotnet build apis/userprofile/web/userprofile.csproj --configuration Release --no-restore
+        run: npm run build apis/userprofile/web/userprofile.csproj --configuration Release --no-restore
       
-      - name: Install dependencies for unit tests
-        run: dotnet restore apis/userprofile/tests/UnitTests/UnitTests.csproj
+      #- name: Install dependencies for unit tests
+      #  run: npm run restore apis/userprofile/tests/UnitTests/UnitTests.csproj
       
-      - name: Build unit tests
-        run: dotnet build apis/userprofile/tests/UnitTests/UnitTests.csproj --configuration Release --no-restore
+      #- name: Build unit tests
+      #  run: npm run build apis/userprofile/tests/UnitTests/UnitTests.csproj --configuration Release --no-restore
       
       - name: Test
-        run: dotnet test apis/userprofile/tests/UnitTests --no-restore --verbosity normal
+        run: npm run test apis/userprofile/tests/UnitTests --no-restore --verbosity normal
         
       - name: Setup .NET Core SDK ${{ matrix.dotnet-version }}
         uses: actions/github-script@0.9.0
@@ -53,6 +50,8 @@ jobs:
               title: "${{ env.build_name }} Workflow ${{ github.run_number }} Failed! ",
               body: body
             })
+  
+  
   deployACR:
     needs: build
     runs-on: ubuntu-latest
@@ -73,6 +72,7 @@ jobs:
       - name: Push the Docker image
         run: docker push ${{ secrets.ACR_LOGIN_SERVER }}/devopsoh/api-userprofile:${{ github.run_number }}    
 
+  
   deployWebApp:
     needs: deployACR
     runs-on: ubuntu-latest
