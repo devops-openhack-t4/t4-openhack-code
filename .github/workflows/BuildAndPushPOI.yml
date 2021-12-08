@@ -7,7 +7,7 @@ on:
 
 jobs:
 
-  build:
+  deploy:
 
     runs-on: ubuntu-latest
 
@@ -41,9 +41,11 @@ jobs:
         slot-name: staging
         images: openhackq3i8na21acr.azurecr.io/devopsoh/api-poi:${{ github.run_number }}
 
-  Validation:
-    needs: build
+  
+  validate:
+    needs: deploy
     runs-on: ubuntu-latest
+    steps:
     - name: Validate Staging slot
       run: |
             declare -i duration=1
@@ -111,8 +113,9 @@ jobs:
             done
   
   
-  Swap:
-    needs: Validation
+  
+  swap:
+    needs: validate
     runs-on: ubuntu-latest
     steps:
      - name: Azure PowerShell Action
