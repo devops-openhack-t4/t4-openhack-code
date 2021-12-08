@@ -52,7 +52,7 @@ jobs:
       uses: pchalupa/site-health-check@v1.0.2
       with:
         # Site URL
-        url: "https://openhackq3i8na21poi-staging.azurewebsites.net/api/healthcheck/poi"  
+        url: "https://openhackq3i8na21poi-staging123456.azurewebsites.net/api/healthcheck/poi"  
   
   swap:
     needs: validate
