@@ -50,7 +50,7 @@ jobs:
       run: |
             declare -i duration=1
             declare hasUrl="https://openhackq3i8na21poi-staging.azurewebsites.net"
-            declare endpoint
+            declare endpoint="/api/docs/poi/index.html"
 
             usage() {
                 cat <<END
