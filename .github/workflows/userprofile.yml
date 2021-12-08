@@ -26,7 +26,7 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: ${{ matrix.node-version }}
-      - run: cd /apis/userprofile/
+      - run: cd apis/userprofile/
       - run: npm install 
       - run: npm run build --if-present
       - run: npm test
