@@ -1,7 +1,8 @@
 name: Build And Push - POI
 
 env:
-  helath_url: "https://openhackq3i8na21poi-staging.azurewebsites.net/api/healthcheck/poi"  
+  staging_health_url: "https://openhackq3i8na21poi-staging.azurewebsites.net/api/healthcheck/poi"  
+  production_health_url: "https://openhackq3i8na21poi123.azurewebsites.net/api/healthcheck/poi"  
   resource_group: "openhackq3i8na21rg"
   app_name: "openhackq3i8na21poi"
   source_slot: "staging"
@@ -59,7 +60,7 @@ jobs:
       uses: pchalupa/site-health-check@v1.0.2
       with:
         # Site URL
-        url: ${{ env.helath_url }}  
+        url: ${{ env.staging_health_url }}  
   
   swap:
     needs: validate
@@ -75,3 +76,27 @@ jobs:
         with:
         # Specify the script here
           inlineScript: az webapp deployment slot swap -g ${{ env.resource_group }}  -n ${{ env.app_name }} --slot ${{ env.source_slot }} --target-slot ${{ env.target_slot }}
+
+  rollback:
+    needs: swap
+    runs-on: ubuntu-latest
+    steps:
+    - name: Site Health Check
+      # You may pin to the exact commit or the version.
+      # uses: pchalupa/site-health-check@1465433932fe6e6e51875730858e76a5d4b4df8c
+      uses: pchalupa/site-health-check@v1.0.2
+      with:
+        # Site URL
+        url: ${{ env.production_health_url }}  
+
+    - name: failure and create issue
+      if:  failure()
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+    - name: Azure CLI Action
+      uses: Azure/cli@v1
+      with:
+      # Specify the script here
+        inlineScript: az webapp deployment slot swap -g ${{ env.resource_group }}  -n ${{ env.app_name }} --slot ${{ env.target_slot }} --target-slot ${{ env.source_slot }}
