@@ -9,6 +9,7 @@ env:
   target_slot: "production"
   login_server: "openhackq3i8na21acr.azurecr.io"
   repository: "devopsoh/api-poi"
+  docker_path: "apis/poi/web/"
   
 on:
   push:
@@ -22,7 +23,7 @@ jobs:
     steps:    
     - uses: actions/checkout@v2
     - name: Build the Docker image
-      run: docker build apis/poi/web/ --tag ${{ env.login_server }}/${{ env.repository }}:${{ github.run_number }}
+      run: docker build ${{ env.docker_path }} --tag ${{ env.login_server }}/${{ env.repository }}:${{ github.run_number }}
       
     - name: Azure Container Registry Login
       uses: Azure/docker-login@v1
