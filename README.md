@@ -41,7 +41,7 @@ It is useful but not required to have a basic knowledge of the following topics:
 
 * Azure App Services
 * Azure Container Registry and Docker
-* GitHub, Azure DevOps (formally VSTS) or Jenkins
+* GitHub, Azure DevOps (formally VSTS) or Jenkins.
 
 ## Resources
 
