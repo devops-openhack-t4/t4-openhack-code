@@ -88,7 +88,7 @@ jobs:
         uses: pchalupa/site-health-check@v1.0.2
         with:
           # Site URL
-          url: ${{ env.production_health_url }}/temp.html
+          url: ${{ env.production_health_url }}
 
       - name: Azure Login
         if:  failure()
