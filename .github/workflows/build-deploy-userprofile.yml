@@ -1,4 +1,4 @@
-name: Deploy UserProfile
+name:  Build & Deploy UserProfile
 
 env:
   # Using ACR
@@ -9,6 +9,8 @@ env:
   app_name: "openhackq3i8na21userprofile"
   source_slot: "staging"
   target_slot: "production"
+  staging_health_url: "https://openhackq3i8na21userprofile-staging.azurewebsites.net/api/healthcheck/userprofile"  
+  production_health_url: "https://openhackq3i8na21userprofile.azurewebsites.net/api/healthcheck/userprofile" 
 
   
 on:
