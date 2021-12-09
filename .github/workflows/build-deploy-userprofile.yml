@@ -69,7 +69,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Build the Docker image
-        run: docker build ${{ env.docker_path }} -t ${{ env.login_server }}/${{ env.repository }}:${{github.run_number}} --build-arg build_version=${{github.run_number}} ${{ env.docker_path }}
+        # run: docker build ${{ env.docker_path }} -t ${{ env.login_server }}/${{ env.repository }}:${{github.run_number}} --build-arg build_version=${{github.run_number}} ${{ env.docker_path }}
+        run: docker build ${{ env.docker_path }} --tag ${{ env.login_server }}/${{ env.repository }}:${{ github.run_number }}
 
       - name: Azure Container Registry Login
         uses: Azure/docker-login@v1
@@ -82,7 +83,8 @@ jobs:
           login-server: ${{ env.login_server }}
 
       - name: Push the Docker image
-        run: docker push ${{ env.login_server }}/${{ github.repository }}:${{ github.run_number }}    
+        # run: docker push ${{ env.login_server }}/${{ github.repository }}:${{ github.run_number }}    
+        run: docker push ${{ env.login_server }}/${{ env.repository }}:${{ github.run_number }}
 
   
   deployWebApp:
