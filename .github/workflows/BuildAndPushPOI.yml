@@ -1,13 +1,15 @@
 name: Build And Push - POI
 
 env:
-  helath_url: "https://openhackq3i8na21poi-staging.azurewebsites.net/api/healthcheck/poi"  
+  staging_health_url: "https://openhackq3i8na21poi-staging.azurewebsites.net/api/healthcheck/poi"  
+  production_health_url: "https://openhackq3i8na21poi.azurewebsites.net/api/healthcheck/poi"  
   resource_group: "openhackq3i8na21rg"
   app_name: "openhackq3i8na21poi"
   source_slot: "staging"
   target_slot: "production"
   login_server: "openhackq3i8na21acr.azurecr.io"
   repository: "devopsoh/api-poi"
+  docker_path: "apis/poi/web/"
   
 on:
   push:
@@ -21,7 +23,7 @@ jobs:
     steps:    
     - uses: actions/checkout@v2
     - name: Build the Docker image
-      run: docker build apis/poi/web/ --tag ${{ env.login_server }}/${{ env.repository }}:${{ github.run_number }}
+      run: docker build ${{ env.docker_path }} --tag ${{ env.login_server }}/${{ env.repository }}:${{ github.run_number }}
       
     - name: Azure Container Registry Login
       uses: Azure/docker-login@v1
@@ -59,7 +61,7 @@ jobs:
       uses: pchalupa/site-health-check@v1.0.2
       with:
         # Site URL
-        url: ${{ env.helath_url }}  
+        url: ${{ env.staging_health_url }}  
   
   swap:
     needs: validate
@@ -74,4 +76,29 @@ jobs:
         uses: Azure/cli@v1
         with:
         # Specify the script here
-          inlineScript: az webapp deployment slot swap -g ${{ env.resource_group }}  -n ${{ env.app_name }} --slot ${{ env.source_slot }} --target-slot ${{ env.target_slot }}
+          inlineScript: az webapp deployment slot swap -g ${{ env.resource_group }} -n ${{ env.app_name }} --slot ${{ env.source_slot }} --target-slot ${{ env.target_slot }}
+
+  rollback:
+    needs: swap
+    runs-on: ubuntu-latest
+    steps:
+      - name: Site Health Check
+        # You may pin to the exact commit or the version.
+        # uses: pchalupa/site-health-check@1465433932fe6e6e51875730858e76a5d4b4df8c
+        uses: pchalupa/site-health-check@v1.0.2
+        with:
+          # Site URL
+          url: ${{ env.production_health_url }}
+
+      - name: Azure Login
+        if:  failure()
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Azure CLI Action
+        if:  failure()
+        uses: Azure/cli@v1
+        with:
+        # Specify the script here
+          inlineScript: az webapp deployment slot swap -g ${{ env.resource_group }} -n ${{ env.app_name }} --slot ${{ env.source_slot }} --target-slot ${{ env.target_slot }}
