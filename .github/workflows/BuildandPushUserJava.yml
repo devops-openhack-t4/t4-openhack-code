@@ -1,20 +1,31 @@
-name: Build And Push User Java
+name: Build And Push - User Java
 
+env:
+  staging_health_url: "https://openhackq3i8na21userjava-staging.azurewebsites.net/api/healthcheck/user-java"  
+  production_health_url: "https://openhackq3i8na21userjava.azurewebsites.net/api/healthcheck/user-java"  
+  resource_group: "openhackq3i8na21rg"
+  app_name: "openhackq3i8na21userjava"
+  source_slot: "staging"
+  target_slot: "production"
+  login_server: "openhackq3i8na21acr.azurecr.io"
+  repository: "devopsoh/api-user-java"
+  docker_path: "apis/user-java/"
+  
 on:
   push:
     branches: [ main ]
+    paths:
+      - apis/user-java/**
   workflow_dispatch: 
 
 jobs:
 
-  build:
-
+  deploy:
     runs-on: ubuntu-latest
-
     steps:    
     - uses: actions/checkout@v2
     - name: Build the Docker image
-      run: docker build apis/user-java/ --tag openhackq3i8na21acr.azurecr.io/devopsoh/api-user-java:${{ github.run_number }}
+      run: docker build ${{ env.docker_path }} --tag ${{ env.login_server }}/${{ env.repository }}:${{ github.run_number }}
       
     - name: Azure Container Registry Login
       uses: Azure/docker-login@v1
@@ -24,10 +35,10 @@ jobs:
         # Container registry password
         password: ${{ secrets.ACR_PASSWORD }}
         # Container registry server url
-        login-server: ${{ secrets.ACR_LOGIN_SERVER }}
+        login-server: ${{ env.login_server }}
     
     - name: Push the Docker image
-      run: docker push openhackq3i8na21acr.azurecr.io/devopsoh/api-user-java:${{ github.run_number }}
+      run: docker push ${{ env.login_server }}/${{ env.repository }}:${{ github.run_number }}
         
     - name: Azure Login
       uses: azure/login@v1
@@ -37,6 +48,60 @@ jobs:
     - name: 'Deploy to Azure Web App for Container'
       uses: azure/webapps-deploy@v2
       with: 
-        app-name: openhackq3i8na21userjava
-        slot-name: staging
-        images: openhackq3i8na21acr.azurecr.io/devopsoh/api-user-java:${{ github.run_number }}
+        app-name: ${{ env.app_name }}
+        slot-name: ${{ env.source_slot }}
+        images: ${{ env.login_server }}/${{ env.repository }}:${{ github.run_number }}
+
+  
+  validate:
+    needs: deploy
+    runs-on: ubuntu-latest
+    steps:
+    - name: Site Health Check
+      # You may pin to the exact commit or the version.
+      # uses: pchalupa/site-health-check@1465433932fe6e6e51875730858e76a5d4b4df8c
+      uses: pchalupa/site-health-check@v1.0.2
+      with:
+        # Site URL
+        url: ${{ env.staging_health_url }}  
+  
+  swap:
+    needs: validate
+    runs-on: ubuntu-latest
+    steps:
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Azure CLI Action
+        uses: Azure/cli@v1
+        with:
+        # Specify the script here
+          inlineScript: az webapp deployment slot swap -g ${{ env.resource_group }} -n ${{ env.app_name }} --slot ${{ env.source_slot }} --target-slot ${{ env.target_slot }}
+
+  rollback:
+    needs: swap
+    runs-on: ubuntu-latest
+    steps:
+      - name: Site Health Check
+        # You may pin to the exact commit or the version.
+        # uses: pchalupa/site-health-check@1465433932fe6e6e51875730858e76a5d4b4df8c
+        uses: pchalupa/site-health-check@v1.0.2
+        with:
+          # Site URL
+          url: ${{ env.production_health_url }}
+
+      - name: Azure Login
+        if:  failure()
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Azure CLI Action
+        if:  failure()
+        uses: Azure/cli@v1
+        with:
+        # Specify the script here
+          inlineScript: az webapp deployment slot swap -g ${{ env.resource_group }} -n ${{ env.app_name }} --slot ${{ env.source_slot }} --target-slot ${{ env.target_slot }}
+
